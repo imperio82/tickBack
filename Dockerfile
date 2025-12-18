@@ -6,7 +6,7 @@ RUN apk add --no-cache \
     python3 \
     py3-pip \
     ffmpeg \
-    && pip3 install --no-cache-dir yt-dlp
+    && pip3 install --no-cache-dir --break-system-packages yt-dlp
 
 # Establecer directorio de trabajo
 WORKDIR /app

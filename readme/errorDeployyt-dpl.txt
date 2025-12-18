@@ -1,0 +1,195 @@
+cheduling build on Metal builder "builder-tsbjgc"
+[snapshot] received sha256:4f02b89cc8bfed65a2423b9ba78c51961746e02d309785ac3b35ed6eeb8578d0 md5:db232f9fca92e9a9fd44ee26667b5481
+receiving snapshot
+319.8 KB
+394ms
+found 'Dockerfile' at 'Dockerfile'
+analyzing snapshot
+319.8 KB
+8ms
+uploading snapshot
+319.8 KB
+57ms
+scheduling build on Metal builder "builder-tsbjgc"
+fetched snapshot sha256:4f02b89cc8bfed65a2423b9ba78c51961746e02d309785ac3b35ed6eeb8578d0 (328 kB bytes)
+fetching snapshot
+319.8 KB
+165ms
+unpacking archive
+1.4 MB
+10ms
+
+internal
+load build definition from Dockerfile
+0ms
+
+internal
+load metadata for docker.io/library/node:20-alpine
+73ms
+
+internal
+load .dockerignore
+0ms
+
+1
+FROM docker.io/library/node:20-alpine@sha256:658d0f63e501824d6c23e06d4bb95c71e7d704537c9d9272f488ac03a370d448 cached
+11ms
+
+internal
+load build context
+0ms
+
+2
+RUN apk add --no-cache     python3     py3-pip     ffmpeg     && pip3 install --no-cache-dir yt-dlp
+3s
+(  1/121) Installing libSvtAv1Enc (3.1.2-r0)
+(  2/121) Installing aom-libs (3.13.1-r0)
+(  3/121) Installing libxau (1.0.12-r0)
+(  4/121) Installing libmd (1.1.0-r0)
+(  5/121) Installing libbsd (0.12.2-r0)
+(  6/121) Installing libxdmcp (1.1.5-r1)
+(  7/121) Installing libxcb (1.17.0-r1)
+(  8/121) Installing libx11 (1.8.12-r1)
+(  9/121) Installing hwdata-pci (0.401-r0)
+( 10/121) Installing libpciaccess (0.18.1-r1)
+( 11/121) Installing libdrm (2.4.131-r0)
+( 12/121) Installing libxext (1.3.6-r2)
+( 13/121) Installing libxfixes (6.0.2-r0)
+( 14/121) Installing libffi (3.5.2-r0)
+( 15/121) Installing wayland-libs-client (1.24.0-r0)
+( 16/121) Installing libva (2.22.0-r1)
+( 17/121) Installing libvdpau (1.5-r4)
+( 18/121) Installing libvpl (2.15.0-r1)
+( 19/121) Installing ffmpeg-libavutil (8.0.1-r0)
+( 20/121) Installing libdav1d (1.5.2-r0)
+( 21/121) Installing brotli-libs (1.2.0-r0)
+( 22/121) Installing libhwy (1.3.0-r0)
+( 23/121) Installing lcms2 (2.17-r0)
+( 24/121) Installing libjxl (0.11.1-r3)
+( 25/121) Installing lame-libs (3.100-r5)
+( 26/121) Installing opus (1.5.2-r1)
+( 27/121) Installing rav1e-libs (0.8.1-r0)
+( 28/121) Installing spirv-tools (1.4.321.0-r1)
+( 29/121) Installing glslang-libs (1.4.321.0-r0)
+( 30/121) Installing shaderc (2025.3-r0)
+( 31/121) Installing libgomp (15.2.0-r2)
+( 32/121) Installing soxr (0.1.3-r7)
+( 33/121) Installing ffmpeg-libswresample (8.0.1-r0)
+( 34/121) Installing libogg (1.3.6-r0)
+( 35/121) Installing libtheora (1.2.0-r0)
+( 36/121) Installing libvorbis (1.3.7-r2)
+( 37/121) Installing libvpx (1.15.2-r0)
+( 38/121) Installing libsharpyuv (1.6.0-r0)
+( 39/121) Installing libwebp (1.6.0-r0)
+( 40/121) Installing libwebpmux (1.6.0-r0)
+( 41/121) Installing x264-libs (0.164.3108-r1)
+( 42/121) Installing numactl (2.0.18-r0)
+( 43/121) Installing x265-libs (4.1-r0)
+( 44/121) Installing xvidcore (1.3.7-r2)
+( 45/121) Installing ffmpeg-libavcodec (8.0.1-r0)
+( 46/121) Installing alsa-lib (1.2.14-r2)
+( 47/121) Installing libexpat (2.7.3-r0)
+( 48/121) Installing libbz2 (1.0.8-r6)
+( 49/121) Installing libpng (1.6.53-r0)
+( 50/121) Installing freetype (2.14.1-r0)
+( 51/121) Installing fontconfig (2.17.1-r0)
+( 52/121) Installing fribidi (1.0.16-r2)
+( 53/121) Installing libintl (0.24.1-r1)
+( 54/121) Installing libeconf (0.8.0-r0)
+( 55/121) Installing libblkid (2.41.2-r0)
+( 56/121) Installing libmount (2.41.2-r0)
+( 57/121) Installing pcre2 (10.47-r0)
+( 58/121) Installing glib (2.86.3-r0)
+( 59/121) Installing graphite2 (1.3.14-r6)
+( 60/121) Installing harfbuzz (12.2.0-r0)
+( 61/121) Installing libunibreak (6.1-r0)
+( 62/121) Installing libass (0.17.4-r0)
+( 63/121) Installing libudfread (1.2.0-r0)
+( 64/121) Installing libbluray (1.4.0-r0)
+( 65/121) Installing mpg123-libs (1.33.3-r0)
+( 66/121) Installing libopenmpt (0.8.3-r0)
+( 67/121) Installing cjson (1.7.19-r1)
+( 68/121) Installing mbedtls (3.6.5-r0)
+( 69/121) Installing librist (0.2.10-r1)
+( 70/121) Installing libsrt (1.5.3-r1)
+( 71/121) Installing libssh (0.11.3-r0)
+( 72/121) Installing xz-libs (5.8.1-r0)
+( 73/121) Installing libxml2 (2.13.9-r0)
+( 74/121) Installing libsodium (1.0.20-r0)
+( 75/121) Installing libzmq (4.3.5-r2)
+( 76/121) Installing ffmpeg-libavformat (8.0.1-r0)
+( 77/121) Installing serd-libs (0.32.4-r0)
+( 78/121) Installing zix-libs (0.6.2-r0)
+( 79/121) Installing sord-libs (0.16.18-r0)
+( 80/121) Installing sratom (0.6.18-r0)
+( 81/121) Installing lilv-libs (0.24.26-r0)
+( 82/121) Installing libdovi (3.3.2-r0)
+( 83/121) Installing vulkan-loader (1.4.321.0-r0)
+( 84/121) Installing libplacebo (7.351.0-r0)
+( 85/121) Installing ffmpeg-libswscale (8.0.1-r0)
+( 86/121) Installing vidstab (1.1.1-r0)
+( 87/121) Installing zimg (3.0.6-r0)
+( 88/121) Installing ffmpeg-libavfilter (8.0.1-r0)
+( 89/121) Installing libasyncns (0.8-r4)
+( 90/121) Installing dbus-libs (1.16.2-r1)
+( 91/121) Installing libltdl (2.5.4-r2)
+( 92/121) Installing orc (0.4.41-r0)
+( 93/121) Installing libflac (1.4.3-r2)
+( 94/121) Installing libsndfile (1.2.2-r2)
+( 95/121) Installing speexdsp (1.2.1-r2)
+( 96/121) Installing tdb-libs (1.4.14-r0)
+( 97/121) Installing libpulse (17.0-r5)
+( 98/121) Installing libjpeg-turbo (3.1.2-r0)
+( 99/121) Installing json-c (0.18-r1)
+(100/121) Installing v4l-utils-libs (1.32.0-r0)
+(101/121) Installing ffmpeg-libavdevice (8.0.1-r0)
+(102/121) Installing ffmpeg (8.0.1-r0)
+(103/121) Installing gdbm (1.26-r0)
+(104/121) Installing mpdecimal (4.0.1-r0)
+(105/121) Installing ncurses-terminfo-base (6.5_p20251123-r0)
+(106/121) Installing libncursesw (6.5_p20251123-r0)
+(107/121) Installing libpanelw (6.5_p20251123-r0)
+(108/121) Installing readline (8.3.1-r0)
+(109/121) Installing sqlite-libs (3.51.1-r0)
+(110/121) Installing python3 (3.12.12-r0)
+(111/121) Installing python3-pycache-pyc0 (3.12.12-r0)
+(112/121) Installing pyc (3.12.12-r0)
+(113/121) Installing py3-setuptools-pyc (80.9.0-r2)
+(114/121) Installing py3-pip-pyc (25.1.1-r1)
+(115/121) Installing py3-packaging-pyc (25.0-r0)
+(116/121) Installing python3-pyc (3.12.12-r0)
+(117/121) Installing py3-parsing (3.2.3-r0)
+(118/121) Installing py3-parsing-pyc (3.2.3-r0)
+(119/121) Installing py3-packaging (25.0-r0)
+(120/121) Installing py3-setuptools (80.9.0-r2)
+(121/121) Installing py3-pip (25.1.1-r1)
+Executing busybox-1.37.0-r30.trigger
+Executing glib-2.86.3-r0.trigger
+OK: 191.0 MiB in 139 packages
+error: externally-managed-environment
+
+× This environment is externally managed
+╰─> 
+    The system-wide python installation should be maintained using the system
+    package manager (apk) only.
+    
+    If the package in question is not packaged already (and hence installable via
+    "apk add py3-somepackage"), please consider installing it inside a virtual
+    environment, e.g.:
+    
+    python3 -m venv /path/to/venv
+    . /path/to/venv/bin/activate
+    pip install mypackage
+    
+    To exit the virtual environment, run:
+    
+    deactivate
+    
+    The virtual environment is not deleted, and can be re-entered by re-sourcing
+    the activate file.
+    
+    To automatically manage virtual environments, consider using pipx (from the
+    pipx package).
+note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.
+hint: See PEP 668 for the detailed specification.
+Build Failed: build daemon returned an error < failed to solve: process "/bin/sh -c apk add --no-cache     python3     py3-pip     ffmpeg     && pip3 install --no-cache-dir yt-dlp" did not complete successfully: exit code: 1 >
