@@ -17,9 +17,21 @@ export class GoogleVideoIntelligenceService {
   private client: VideoIntelligenceServiceClient;
 
   constructor(private configService: ConfigService) {
+    const projectId = this.configService.get<string>('GOOGLE_CLOUD_PROJECT_ID');
+    const privateKey = this.configService.get<string>('GOOGLE_CLOUD_PRIVATE_KEY');
+    const clientEmail = this.configService.get<string>('GOOGLE_CLOUD_CLIENT_EMAIL');
+
+    // Configurar credenciales desde variables de entorno
+    const credentials = {
+      type: 'service_account',
+      project_id: projectId,
+      private_key: privateKey?.replace(/\\n/g, '\n'), // Reemplazar \n literales con saltos de línea reales
+      client_email: clientEmail,
+    };
+
     this.client = new VideoIntelligenceServiceClient({
-      keyFilename: this.configService.get('GOOGLE_APPLICATION_CREDENTIALS'),
-      projectId: this.configService.get('GOOGLE_CLOUD_PROJECT_ID'),
+      projectId,
+      credentials,
     });
   }
 

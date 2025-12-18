@@ -11,15 +11,24 @@ export class GoogleStorageService {
 
   constructor(private configService: ConfigService) {
     const projectId = this.configService.get<string>('GOOGLE_CLOUD_PROJECT_ID');
-    const keyFilename = this.configService.get<string>('GOOGLE_APPLICATION_CREDENTIALS');
+    const privateKey = this.configService.get<string>('GOOGLE_CLOUD_PRIVATE_KEY');
+    const clientEmail = this.configService.get<string>('GOOGLE_CLOUD_CLIENT_EMAIL');
 
-    if (!projectId || !keyFilename) {
-      throw new Error('GOOGLE_CLOUD_PROJECT_ID o GOOGLE_APPLICATION_CREDENTIALS no está definido');
+    if (!projectId || !privateKey || !clientEmail) {
+      throw new Error('GOOGLE_CLOUD_PROJECT_ID, GOOGLE_CLOUD_PRIVATE_KEY o GOOGLE_CLOUD_CLIENT_EMAIL no está definido');
     }
+
+    // Configurar credenciales desde variables de entorno
+    const credentials = {
+      type: 'service_account',
+      project_id: projectId,
+      private_key: privateKey.replace(/\\n/g, '\n'), // Reemplazar \n literales con saltos de línea reales
+      client_email: clientEmail,
+    };
 
     this.storage = new Storage({
       projectId,
-      keyFilename,
+      credentials,
     });
 
     this.logger.log('GoogleStorageService inicializado correctamente');
