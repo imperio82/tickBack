@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule as NestConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from './config/config.module';
@@ -16,17 +17,28 @@ import { CalendarModule } from './calendar/calendar.module';
 
 @Module({
   imports: [
+    // Configuración de variables de entorno
+    NestConfigModule.forRoot({
+      isGlobal: true, // Hace que ConfigService esté disponible en todos los módulos
+      envFilePath: '.env',
+    }),
     VideoDownloaderModule,
     GoogleVideoIntelligenceModule,
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'imperio',
-      database: 'tick',
-      autoLoadEntities: true,
-      synchronize: true,
+    // Configuración de base de datos usando variables de entorno
+    TypeOrmModule.forRootAsync({
+      imports: [NestConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USER'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_NAME'),
+        autoLoadEntities: true,
+        synchronize: true, // ⚠️ Cambiar a false en producción
+        logging: false,
+      }),
     }),
     AuthModule,
     UserModule,
