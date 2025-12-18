@@ -273,7 +273,7 @@ export class VideoDownloaderService {
         fileName: uploadResult.fileName,
         videoInfo,
         bucketName: this.bucketName,
-        gcsPath: uploadResult.path
+        gcsPath: uploadResult.gcsUri || `gs://${this.bucketName}/${uploadResult.fileName}`
       };
       
     } catch (error) {

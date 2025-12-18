@@ -9,9 +9,16 @@ import { ApifyModule } from './apify/apify.module';
 import { VideoDownloaderModule } from './apify/downloaderVideo/downloaderFie.module';
 import { GoogleVideoIntelligenceModule } from './googleAi/google.module';
 import { AnalisisModule } from './analisis/analisis.module';
+import { CompetitorAnalysisModule } from './competitor-analysis/competitor-analysis.module';
+import { ProfileAnalysisModule } from './profile-analysis/profile-analysis.module';
+import { CreditModule } from './credits/credit.module';
+import { CalendarModule } from './calendar/calendar.module';
 
 @Module({
-  imports: [ VideoDownloaderModule , GoogleVideoIntelligenceModule,TypeOrmModule.forRoot({
+  imports: [
+    VideoDownloaderModule,
+    GoogleVideoIntelligenceModule,
+    TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
       port: 5432,
@@ -19,8 +26,18 @@ import { AnalisisModule } from './analisis/analisis.module';
       password: 'imperio',
       database: 'tick',
       autoLoadEntities: true,
-      synchronize: true, // ⚠️ Solo en desarrollo
-    }), AuthModule, UserModule, ConfigModule, ApifyModule, AnalisisModule],
+      synchronize: true,
+    }),
+    AuthModule,
+    UserModule,
+    ConfigModule,
+    ApifyModule,
+    AnalisisModule,
+    CompetitorAnalysisModule,
+    ProfileAnalysisModule,
+    CreditModule,
+    CalendarModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

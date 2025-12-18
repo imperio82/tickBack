@@ -12,6 +12,34 @@ export enum EstadoUsuario {
   SUSPENDIDO = 'suspendido',
 }
 
+export enum RolUsuario {
+  USUARIO = 'usuario',
+  ADMIN = 'admin',
+}
+
+// ========== ENUMS DE CRÉDITOS ==========
+export enum TipoPaqueteCredito {
+  GRATIS = 'gratis',
+  BASICO = 'basico',
+  ESTANDAR = 'estandar',
+  PREMIUM = 'premium',
+}
+
+export enum TipoTransaccionCredito {
+  COMPRA = 'compra',
+  CONSUMO = 'consumo',
+  REGALO = 'regalo',
+  REEMBOLSO = 'reembolso',
+  EXPIRACION = 'expiracion',
+}
+
+export enum EstadoTransaccion {
+  PENDIENTE = 'pendiente',
+  COMPLETADA = 'completada',
+  FALLIDA = 'fallida',
+  CANCELADA = 'cancelada',
+}
+
 export enum SectorEconomico {
   TECNOLOGIA = 'tecnologia',
   MODA = 'moda',

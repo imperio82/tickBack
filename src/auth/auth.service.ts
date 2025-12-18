@@ -37,9 +37,9 @@ export class AuthService {
   }
 
   // Login
-  async login(user: UsuarioResponseDto): Promise<{ access_token: string; refresh_token: string }> {
+  async login(user: UsuarioResponseDto): Promise<{ access_token: string; refresh_token: string; user: UsuarioResponseDto }> {
     try {
-      const payload = { sub: user.id, email: user.email, };
+      const payload = { sub: user.id, email: user.email, rol: user.rol };
 
       const access_token = this.jwtService.sign(payload, {
         secret: process.env.TOKEN_SECRET,
@@ -51,7 +51,9 @@ export class AuthService {
         expiresIn: '7d',
       });
 
-      return { access_token, refresh_token };
+      // Retornar tokens y datos del usuario
+      const { password, ...userWithoutPassword } = user as any;
+      return { access_token, refresh_token, user: userWithoutPassword };
     } catch (error) {
       console.error(error);
       throw new HttpException('Error generando tokens', HttpStatus.BAD_REQUEST);
@@ -72,7 +74,7 @@ export class AuthService {
       if (!user) throw new UnauthorizedException('Usuario no encontrado');
 
       const newAccessToken = this.jwtService.sign(
-        { sub: user.id, email: user.email, },
+        { sub: user.id, email: user.email, rol: user.rol },
         {
           secret: process.env.TOKEN_SECRET,
           expiresIn: '15m',

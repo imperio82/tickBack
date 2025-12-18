@@ -5,18 +5,38 @@ import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { LoginDto } from './dto/authdto';
 import { AuthService } from './auth.service';
 
-class TokenResponse {
+class LoginResponse {
   access_token: string;
   refresh_token: string;
+  user: {
+    id: string;
+    email: string;
+    username: string;
+    nombre: string;
+    apellido: string;
+    estado: string;
+    rol: string;
+    tipoSuscripcion: string;
+    creditosDisponibles: number;
+    totalCreditosComprados: number;
+    totalCreditosConsumidos: number;
+    creadoEn: Date;
+  };
 }
 
 class UserResponse {
-  id: number;
+  id: string;
   email: string;
-  name: string;
-  role?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  username: string;
+  nombre: string;
+  apellido: string;
+  estado: string;
+  rol: string;
+  tipoSuscripcion: string;
+  creditosDisponibles: number;
+  totalCreditosComprados: number;
+  totalCreditosConsumidos: number;
+  creadoEn: Date;
 }
 
 @ApiTags('Autenticación')
@@ -28,12 +48,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Iniciar sesión',
-    description: 'Inicia sesión con email y contraseña válidos y retorna tokens',
+    description: 'Inicia sesión con email y contraseña válidos y retorna tokens y datos del usuario',
   })
   @ApiBody({ type: LoginDto })
-  @ApiResponse({ status: 200, description: 'Login exitoso', type: TokenResponse })
+  @ApiResponse({ status: 200, description: 'Login exitoso', type: LoginResponse })
   @ApiUnauthorizedResponse({ description: 'Credenciales inválidas' })
-  async login(@Body() loginDto: LoginDto): Promise<TokenResponse> {
+  async login(@Body() loginDto: LoginDto): Promise<LoginResponse> {
     const user = await this.authService.validateUser(loginDto.email, loginDto.password);
     if (!user) {
       throw new UnauthorizedException('Credenciales inválidas');

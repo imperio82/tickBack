@@ -1,6 +1,7 @@
 // src/dto/video-analysis.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsUrl, IsOptional, IsArray, IsEnum, IsNumber, Max, Min } from 'class-validator';
+import { GeminiModel, GEMINI_MODELS } from '../iaLenguageGeneta';
 
 
 export class ScrapingRequestDto {
@@ -65,13 +66,13 @@ export class GenerateTextRequestDto {
 
   @ApiProperty({
     description: 'Modelo de IA a utilizar',
-    enum: ['gemini-pro', 'gemini-pro-vision', 'gemini-1.5-pro', 'gemini-1.5-flash'],
-    default: 'gemini-1.5-flash',
+    enum: GEMINI_MODELS,
+    default: 'gemini-flash-latest',
     required: false
   })
   @IsOptional()
-  @IsEnum(['gemini-pro', 'gemini-pro-vision', 'gemini-1.5-pro', 'gemini-1.5-flash'])
-  model?:  'gemini-pro' | 'gemini-pro-vision' | 'gemini-1.5-pro' | 'gemini-1.5-flash';
+  @IsEnum(GEMINI_MODELS)
+  model?: GeminiModel;
 
   @ApiProperty({
     description: 'Instrucciones del sistema para guiar el comportamiento del modelo',
@@ -162,13 +163,13 @@ export class GenerateConversationDto {
 
   @ApiProperty({
     description: 'Modelo de IA a utilizar',
-    enum: ['gemini-pro', 'gemini-pro-vision', 'gemini-1.5-pro', 'gemini-1.5-flash'],
-    default: 'gemini-1.5-flash',
+    enum: GEMINI_MODELS,
+    default: 'gemini-flash-latest',
     required: false
   })
   @IsOptional()
-  @IsString()
-  model?: string;
+  @IsEnum(GEMINI_MODELS)
+  model?: GeminiModel;
 
   @ApiProperty({
     description: 'Instrucciones del sistema',
@@ -237,12 +238,13 @@ export class GenerateMultipleCandidatesDto {
 
   @ApiProperty({
     description: 'Modelo de IA a utilizar',
-    default: 'gemini-1.5-flash',
+    enum: GEMINI_MODELS,
+    default: 'gemini-flash-latest',
     required: false
   })
   @IsOptional()
-  @IsString()
-  model?: string;
+  @IsEnum(GEMINI_MODELS)
+  model?: GeminiModel;
 
   @ApiProperty({
     description: 'Instrucciones del sistema',
@@ -263,12 +265,13 @@ export class CountTokensDto {
 
   @ApiProperty({
     description: 'Modelo a utilizar para el conteo',
-    default: 'gemini-1.5-flash',
+    enum: GEMINI_MODELS,
+    default: 'gemini-flash-latest',
     required: false
   })
   @IsOptional()
-  @IsString()
-  model?: string;
+  @IsEnum(GEMINI_MODELS)
+  model?: GeminiModel;
 
   @ApiProperty({
     description: 'Instrucciones del sistema',

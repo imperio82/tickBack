@@ -3,7 +3,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsBoolean, IsDate, IsEmail, IsEnum, IsOptional, IsString, MinLength } from "class-validator";
 import { Type } from "class-transformer";
-import { EstadoUsuario, TipoSuscripcion } from "./enums";
+import { EstadoUsuario, TipoSuscripcion, RolUsuario } from "./enums";
 
 export class CrearUsuarioDto {
   @ApiProperty({
@@ -232,6 +232,13 @@ export class UsuarioResponseDto {
   estado: EstadoUsuario;
 
   @ApiProperty({
+    description: 'Rol del usuario en el sistema',
+    enum: RolUsuario,
+    example: RolUsuario.USUARIO
+  })
+  rol: RolUsuario;
+
+  @ApiProperty({
     description: 'Tipo de suscripción',
     enum: TipoSuscripcion,
     example: TipoSuscripcion.GRATUITA
@@ -243,6 +250,24 @@ export class UsuarioResponseDto {
     example: '2024-01-15T10:30:00.000Z'
   })
   creadoEn: Date;
+
+  @ApiProperty({
+    description: 'Créditos disponibles actuales',
+    example: 15
+  })
+  creditosDisponibles: number;
+
+  @ApiProperty({
+    description: 'Total de créditos comprados históricamente',
+    example: 60
+  })
+  totalCreditosComprados: number;
+
+  @ApiProperty({
+    description: 'Total de créditos consumidos históricamente',
+    example: 45
+  })
+  totalCreditosConsumidos: number;
 }
 
 export class ListarUsuariosResponseDto {

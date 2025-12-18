@@ -15,6 +15,13 @@ export enum QueryType {
   PROPIA = 'propia',
   INVESTIGACION = 'investigacion',
   SQL_QUERY = "SQL_QUERY",
+  HASHTAG = 'hashtag',
+  SEARCH = 'search',
+  VIDEO = 'video',
+  ADVANCED = 'advanced',
+  COMMENT = 'comment',
+  SOUND = 'sound',
+  TRENDING = 'trending',
 }
 
 export enum AnalysisStatus {

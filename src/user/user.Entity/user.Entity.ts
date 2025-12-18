@@ -10,7 +10,7 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { EstadoUsuario, TipoSuscripcion } from '../dto/enums';
+import { EstadoUsuario, TipoSuscripcion, RolUsuario } from '../dto/enums';
 import { Analysis } from 'src/apify/entity/apify.entity';
 
 
@@ -63,6 +63,13 @@ export class Usuario {
   })
   estado: EstadoUsuario;
 
+  @Column({
+    type: 'enum',
+    enum: RolUsuario,
+    default: RolUsuario.USUARIO,
+  })
+  rol: RolUsuario;
+
   @Column({ default: false })
   emailVerificado: boolean;
 
@@ -79,7 +86,7 @@ export class Usuario {
   @Column({ type: 'timestamp', nullable: true })
   fechaVencimientoSuscripcion: Date;
 
-  // Límites por suscripción
+  // Límites por suscripción (mantener por compatibilidad)
   @Column({ default: 10 })
   limiteBusquedasMes: number;
 
@@ -88,6 +95,16 @@ export class Usuario {
 
   @Column({ default: 5 })
   limitePerfilesSeguimiento: number;
+
+  // ========== SISTEMA DE CRÉDITOS ==========
+  @Column({ type: 'int', default: 3 })
+  creditosDisponibles: number;
+
+  @Column({ type: 'int', default: 0 })
+  totalCreditosComprados: number;
+
+  @Column({ type: 'int', default: 0 })
+  totalCreditosConsumidos: number;
 
   // Configuración de notificaciones
   @Column({ default: true })

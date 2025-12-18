@@ -9,6 +9,7 @@ import {
   HttpException,
   Logger,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -29,17 +30,20 @@ import {
   TikTokAdvancedScrapingOptions,
 } from './apify.service';
 import { AdvancedScrapingDto, CommentScrapingDto, HashtagScrapingDto, ProfileScrapingDto, RunStatusDto, ScrapingResponseDto, SearchScrapingDto, SoundScrapingDto, VideoScrapingDto } from './apify.dto';
+import { JwtAuthGuard } from 'src/auth/guards/autGuard';
 
 
 @ApiTags('TikTok Scraping')
 @Controller('tiktok')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class TikTokController {
   private readonly logger = new Logger(TikTokController.name);
 
   constructor(private readonly tikTokService: TikTokApifyService) {}
 
   @Post('scrape/hashtags')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Scrape videos por hashtags',
     description: 'Obtiene videos de TikTok basados en hashtags específicos'
   })
@@ -57,11 +61,12 @@ export class TikTokController {
     description: 'Error interno del servidor',
   })
   @ApiBody({ type: HashtagScrapingDto })
-  async scrapeByHashtags(@Body() dto: HashtagScrapingDto): Promise<TikTokScrapingResult> {
+  async scrapeByHashtags(@Request() req, @Body() dto: HashtagScrapingDto): Promise<TikTokScrapingResult> {
     try {
+      const userId: string = req.user.userId;
       this.logger.log(`Iniciando scraping por hashtags: ${dto.hashtags.join(', ')}`);
-      const result = await this.tikTokService.scrapeByHashtags(dto as TikTokHashtagOptions);
-      
+      const result = await this.tikTokService.scrapeByHashtags(dto as TikTokHashtagOptions, userId);
+
       if (!result.success) {
         throw new HttpException(
           `Error en el scraping: ${result.error}`,
@@ -90,12 +95,12 @@ export class TikTokController {
     type: ScrapingResponseDto,
   })
   @ApiBody({ type: ProfileScrapingDto })
-  async scrapeProfiles(@Request() req ,@Body() dto: ProfileScrapingDto): Promise<TikTokScrapingResult> {
+  async scrapeProfiles(@Request() req, @Body() dto: ProfileScrapingDto): Promise<TikTokScrapingResult> {
     try {
-      const id: string= "123" //req.user.userId 
+      const userId: string = req.user.userId;
       this.logger.log(`Iniciando scraping de perfiles: ${dto.profiles.join(', ')}`);
-      const result = await this.tikTokService.scrapeProfiles(dto as TikTokProfileOptions, id);
-      
+      const result = await this.tikTokService.scrapeProfiles(dto as TikTokProfileOptions, userId);
+
       if (!result.success) {
         throw new HttpException(
           `Error en el scraping: ${result.error}`,
@@ -124,11 +129,12 @@ export class TikTokController {
     type: ScrapingResponseDto,
   })
   @ApiBody({ type: SearchScrapingDto })
-  async scrapeBySearch(@Body() dto: SearchScrapingDto): Promise<TikTokScrapingResult> {
+  async scrapeBySearch(@Request() req, @Body() dto: SearchScrapingDto): Promise<TikTokScrapingResult> {
     try {
+      const userId: string = req.user.userId;
       this.logger.log(`Iniciando búsqueda: ${dto.search}`);
-      const result = await this.tikTokService.scrapeBySearch(dto as TikTokSearchOptions);
-      
+      const result = await this.tikTokService.scrapeBySearch(dto as TikTokSearchOptions, userId);
+
       if (!result.success) {
         throw new HttpException(
           `Error en la búsqueda: ${result.error}`,
@@ -157,11 +163,12 @@ export class TikTokController {
     type: ScrapingResponseDto,
   })
   @ApiBody({ type: VideoScrapingDto })
-  async scrapeVideos(@Body() dto: VideoScrapingDto): Promise<TikTokScrapingResult> {
+  async scrapeVideos(@Request() req, @Body() dto: VideoScrapingDto): Promise<TikTokScrapingResult> {
     try {
+      const userId: string = req.user.userId;
       this.logger.log(`Scraping de ${dto.videoUrls.length} videos específicos`);
-      const result = await this.tikTokService.scrapeVideos(dto as TikTokVideoOptions);
-      
+      const result = await this.tikTokService.scrapeVideos(dto as TikTokVideoOptions, userId);
+
       if (!result.success) {
         throw new HttpException(
           `Error en el scraping: ${result.error}`,
@@ -190,11 +197,12 @@ export class TikTokController {
     type: ScrapingResponseDto,
   })
   @ApiBody({ type: AdvancedScrapingDto })
-  async scrapeAdvanced(@Body() dto: AdvancedScrapingDto): Promise<TikTokScrapingResult> {
+  async scrapeAdvanced(@Request() req, @Body() dto: AdvancedScrapingDto): Promise<TikTokScrapingResult> {
     try {
+      const userId: string = req.user.userId;
       this.logger.log(`Iniciando scraping avanzado tipo: ${dto.type}`);
-      const result = await this.tikTokService.scrapeAdvanced(dto as TikTokAdvancedScrapingOptions);
-      
+      const result = await this.tikTokService.scrapeAdvanced(dto as TikTokAdvancedScrapingOptions, userId);
+
       if (!result.success) {
         throw new HttpException(
           `Error en el scraping avanzado: ${result.error}`,
@@ -223,14 +231,16 @@ export class TikTokController {
     type: ScrapingResponseDto,
   })
   @ApiBody({ type: CommentScrapingDto })
-  async scrapeComments(@Body() dto: CommentScrapingDto): Promise<TikTokScrapingResult> {
+  async scrapeComments(@Request() req, @Body() dto: CommentScrapingDto): Promise<TikTokScrapingResult> {
     try {
+      const userId: string = req.user.userId;
       this.logger.log(`Scraping de comentarios de ${dto.videoUrls.length} videos`);
       const result = await this.tikTokService.scrapeComments(
         dto.videoUrls,
-        dto.maxComments || 100
+        dto.maxComments || 100,
+        userId
       );
-      
+
       if (!result.success) {
         throw new HttpException(
           `Error obteniendo comentarios: ${result.error}`,
@@ -259,11 +269,12 @@ export class TikTokController {
     type: ScrapingResponseDto,
   })
   @ApiBody({ type: SoundScrapingDto })
-  async scrapeSounds(@Body() dto: SoundScrapingDto): Promise<TikTokScrapingResult> {
+  async scrapeSounds(@Request() req, @Body() dto: SoundScrapingDto): Promise<TikTokScrapingResult> {
     try {
+      const userId: string = req.user.userId;
       this.logger.log(`Scraping de información de ${dto.soundUrls.length} sonidos`);
-      const result = await this.tikTokService.scrapeSounds(dto.soundUrls);
-      
+      const result = await this.tikTokService.scrapeSounds(dto.soundUrls, userId);
+
       if (!result.success) {
         throw new HttpException(
           `Error obteniendo información de sonidos: ${result.error}`,
@@ -294,13 +305,15 @@ export class TikTokController {
     type: ScrapingResponseDto,
   })
   async scrapeTrending(
+    @Request() req,
     @Query('region') region: string = 'US',
     @Query('maxResults') maxResults: number = 100,
   ): Promise<TikTokScrapingResult> {
     try {
+      const userId: string = req.user.userId;
       this.logger.log(`Obteniendo tendencias para región: ${region}`);
-      const result = await this.tikTokService.scrapeTrending(region, maxResults);
-      
+      const result = await this.tikTokService.scrapeTrending(region, maxResults, userId);
+
       if (!result.success) {
         throw new HttpException(
           `Error obteniendo tendencias: ${result.error}`,

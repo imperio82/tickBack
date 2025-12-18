@@ -19,7 +19,7 @@ export class AppService {
     private readonly googleAI: GoogleAIService
   ) { }
   async getHello(): Promise<any> {
-
+/*
     const videoUrl = "gs://archivosvideos/video.mp4" //"";
     const analysisDto: VideoAnalysisDto = {
       videoUrl,
@@ -63,14 +63,14 @@ export class AppService {
         downloadedAt: new Date().toISOString()
       }
     };*/
-    console.log("result",)
-    const filePath = path.join(process.cwd(), 'example.json');
-    const fileContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+   // console.log("result",)
+    //const filePath = path.join(process.cwd(), 'example.json');
+    //const fileContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
   
     
-    const result = analizarDatosCompetidoresTikTok(fileContent.data);
+    //const result = analizarDatosCompetidoresTikTok(fileContent.data);
  //@ts-ignore
-    const res = obtenerInsightsCompetidores(result)
+    /*const res = obtenerInsightsCompetidores(result)
 
     
     const resultadoAnalisis = `
@@ -154,6 +154,6 @@ export class AppService {
       prompt: resultadoAnalisis,
       systemInstruction: prompsSystem,
     });
-    return { analisis: "resultN", ia: results };
+    return { analisis: "resultN", ia: results };*/
   }
 }

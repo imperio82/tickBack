@@ -11,6 +11,7 @@ export interface TikTokScrapingResult {
   error?: string;
   runId?: string;
   totalResults?: number;
+  analysisId?: string; // ID del Analysis entity creado
 }
 
 export interface TikTokHashtagOptions {
@@ -183,7 +184,7 @@ export class TikTokApifyService {
   /**
    * Scraping básico por hashtags
    */
-  async scrapeByHashtags(options: TikTokHashtagOptions): Promise<TikTokScrapingResult> {
+  async scrapeByHashtags(options: TikTokHashtagOptions, userId: string): Promise<TikTokScrapingResult> {
     const input = {
       hashtags: options.hashtags,
       resultsPerPage: options.resultsPerPage || 20,
@@ -194,7 +195,20 @@ export class TikTokApifyService {
       proxyConfiguration: options.proxyConfiguration || { useApifyProxy: true },
     };
 
-    return this.runTikTokActor(this.ACTORS.DATA_EXTRACTOR, input);
+    try {
+      const resultScraper = await this.runTikTokActor(this.ACTORS.DATA_EXTRACTOR, input);
+
+      this.entitySreaperAnalisys.create({
+        userId: userId,
+        analysisResult: resultScraper.data as any,
+        queryType: QueryType.HASHTAG
+      });
+
+      return resultScraper;
+    } catch (error) {
+      this.logger.error('Error en scrapeByHashtags:', error);
+      throw error;
+    }
   }
 
   /**
@@ -214,12 +228,17 @@ export class TikTokApifyService {
     try {
       const resultScraper = await this.runTikTokActor(this.ACTORS.PROFILE_SCRAPER, input);
 
-      this.entitySreaperAnalisys.create({
+      const analysisEntity = await this.entitySreaperAnalisys.create({
         userId: id,
         analysisResult: resultScraper.data as any,
         queryType: QueryType.PROPIA
-      })
-      return resultScraper
+      });
+
+      // Agregar el analysisId al resultado
+      return {
+        ...resultScraper,
+        analysisId: analysisEntity.id
+      };
     } catch (error) {
       console.log("error");
       throw error;
@@ -230,7 +249,7 @@ export class TikTokApifyService {
   /**
    * Scraping por búsqueda de palabras clave
    */
-  async scrapeBySearch(options: TikTokSearchOptions): Promise<TikTokScrapingResult> {
+  async scrapeBySearch(options: TikTokSearchOptions, userId: string): Promise<TikTokScrapingResult> {
     const input = {
       search: options.search,
       resultsPerPage: options.resultsPerPage || 50,
@@ -241,13 +260,26 @@ export class TikTokApifyService {
       proxyConfiguration: options.proxyConfiguration || { useApifyProxy: true },
     };
 
-    return this.runTikTokActor(this.ACTORS.DATA_EXTRACTOR, input);
+    try {
+      const resultScraper = await this.runTikTokActor(this.ACTORS.DATA_EXTRACTOR, input);
+
+      this.entitySreaperAnalisys.create({
+        userId: userId,
+        analysisResult: resultScraper.data as any,
+        queryType: QueryType.SEARCH
+      });
+
+      return resultScraper;
+    } catch (error) {
+      this.logger.error('Error en scrapeBySearch:', error);
+      throw error;
+    }
   }
 
   /**
    * Scraping de videos específicos
    */
-  async scrapeVideos(options: TikTokVideoOptions): Promise<TikTokScrapingResult> {
+  async scrapeVideos(options: TikTokVideoOptions, userId: string): Promise<TikTokScrapingResult> {
     const input = {
       videoUrls: options.videoUrls,
       shouldDownloadCovers: options.shouldDownloadCovers || false,
@@ -257,13 +289,26 @@ export class TikTokApifyService {
       proxyConfiguration: options.proxyConfiguration || { useApifyProxy: true },
     };
 
-    return this.runTikTokActor(this.ACTORS.VIDEO_SCRAPER, input);
+    try {
+      const resultScraper = await this.runTikTokActor(this.ACTORS.VIDEO_SCRAPER, input);
+
+      this.entitySreaperAnalisys.create({
+        userId: userId,
+        analysisResult: resultScraper.data as any,
+        queryType: QueryType.VIDEO
+      });
+
+      return resultScraper;
+    } catch (error) {
+      this.logger.error('Error en scrapeVideos:', error);
+      throw error;
+    }
   }
 
   /**
    * Scraping avanzado con todas las opciones de filtrado
    */
-  async scrapeAdvanced(options: TikTokAdvancedScrapingOptions): Promise<TikTokScrapingResult> {
+  async scrapeAdvanced(options: TikTokAdvancedScrapingOptions, userId: string): Promise<TikTokScrapingResult> {
     let input: any = {
       resultsPerPage: options.resultsPerPage || 50,
       shouldDownloadCovers: options.shouldDownloadCovers || false,
@@ -333,41 +378,80 @@ export class TikTokApifyService {
       actorId = this.ACTORS.SEARCH_SCRAPER;
     }
 
-    return this.runTikTokActor(actorId, input, {
-      timeout: options.timeout || 600,
-      memory: 8192,
-    });
+    try {
+      const resultScraper = await this.runTikTokActor(actorId, input, {
+        timeout: options.timeout || 600,
+        memory: 8192,
+      });
+
+      this.entitySreaperAnalisys.create({
+        userId: userId,
+        analysisResult: resultScraper.data as any,
+        queryType: QueryType.ADVANCED
+      });
+
+      return resultScraper;
+    } catch (error) {
+      this.logger.error('Error en scrapeAdvanced:', error);
+      throw error;
+    }
   }
 
   /**
    * Obtener comentarios de videos específicos
    */
-  async scrapeComments(videoUrls: string[], maxComments: number = 100): Promise<TikTokScrapingResult> {
+  async scrapeComments(videoUrls: string[], maxComments: number = 100, userId: string): Promise<TikTokScrapingResult> {
     const input = {
       videoUrls,
       maxComments,
       proxyConfiguration: { useApifyProxy: true },
     };
 
-    return this.runTikTokActor(this.ACTORS.COMMENTS_SCRAPER, input);
+    try {
+      const resultScraper = await this.runTikTokActor(this.ACTORS.COMMENTS_SCRAPER, input);
+
+      this.entitySreaperAnalisys.create({
+        userId: userId,
+        analysisResult: resultScraper.data as any,
+        queryType: QueryType.COMMENT
+      });
+
+      return resultScraper;
+    } catch (error) {
+      this.logger.error('Error en scrapeComments:', error);
+      throw error;
+    }
   }
 
   /**
    * Obtener información de música/sonidos
    */
-  async scrapeSounds(soundUrls: string[]): Promise<TikTokScrapingResult> {
+  async scrapeSounds(soundUrls: string[], userId: string): Promise<TikTokScrapingResult> {
     const input = {
       soundUrls,
       proxyConfiguration: { useApifyProxy: true },
     };
 
-    return this.runTikTokActor(this.ACTORS.SOUND_SCRAPER, input);
+    try {
+      const resultScraper = await this.runTikTokActor(this.ACTORS.SOUND_SCRAPER, input);
+
+      this.entitySreaperAnalisys.create({
+        userId: userId,
+        analysisResult: resultScraper.data as any,
+        queryType: QueryType.SOUND
+      });
+
+      return resultScraper;
+    } catch (error) {
+      this.logger.error('Error en scrapeSounds:', error);
+      throw error;
+    }
   }
 
   /**
    * Scraping de tendencias por región
    */
-  async scrapeTrending(region: string = 'US', maxResults: number = 100): Promise<TikTokScrapingResult> {
+  async scrapeTrending(region: string = 'US', maxResults: number = 100, userId: string): Promise<TikTokScrapingResult> {
     const input = {
       type: 'TREND',
       region,
@@ -377,7 +461,20 @@ export class TikTokApifyService {
       proxyConfiguration: { useApifyProxy: true },
     };
 
-    return this.runTikTokActor(this.ACTORS.FAST_SCRAPER, input);
+    try {
+      const resultScraper = await this.runTikTokActor(this.ACTORS.FAST_SCRAPER, input);
+
+      this.entitySreaperAnalisys.create({
+        userId: userId,
+        analysisResult: resultScraper.data as any,
+        queryType: QueryType.TRENDING
+      });
+
+      return resultScraper;
+    } catch (error) {
+      this.logger.error('Error en scrapeTrending:', error);
+      throw error;
+    }
   }
 
   /**

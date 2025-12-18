@@ -100,17 +100,18 @@ export class GoogleStorageService {
         });
 
         stream.on('finish', () => {
-          // Hacer el archivo público
-          fileRef.makePublic().then(() => {
-            const publicUrl = `https://storage.googleapis.com/${bucketName}/${fileNameToUse}`;
-            
-            resolve({
-              path: fileNameToUse,
-              publicUrl: publicUrl,
-              fileName: fileNameToUse,
-              bucketName: bucketName,
-            });
-          }).catch(reject);
+          // El archivo es público automáticamente gracias a la política IAM del bucket
+          // No se usa makePublic() para ser compatible con Uniform Bucket-Level Access
+          const publicUrl = `https://storage.googleapis.com/${bucketName}/${fileNameToUse}`;
+          const gcsUri = `gs://${bucketName}/${fileNameToUse}`;
+
+          resolve({
+            path: fileNameToUse,
+            publicUrl: publicUrl,
+            gcsUri: gcsUri,
+            fileName: fileNameToUse,
+            bucketName: bucketName,
+          });
         });
 
         stream.end(file);

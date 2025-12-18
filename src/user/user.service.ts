@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Usuario } from './user.Entity/user.Entity';
-import { EstadoUsuario, TipoSuscripcion } from './dto/enums';
+import { EstadoUsuario, TipoSuscripcion, RolUsuario } from './dto/enums';
 
 // DTOs para operaciones CRUD
 export interface CreateUsuarioDto {
@@ -43,8 +43,12 @@ export interface UsuarioResponseDto {
   nombre: string;
   apellido: string;
   estado: EstadoUsuario;
+  rol: RolUsuario;
   tipoSuscripcion: TipoSuscripcion;
   creadoEn: Date;
+  creditosDisponibles: number;
+  totalCreditosComprados: number;
+  totalCreditosConsumidos: number;
 }
 
 @Injectable()
@@ -364,6 +368,45 @@ export class UserService {
     return limites[tipo];
   }
 
+  // ========== MÉTODOS DE CRÉDITOS ==========
+
+  /**
+   * Obtiene los créditos disponibles de un usuario
+   */
+  async obtenerCreditos(id: string): Promise<number> {
+    const usuario = await this.usuarioRepository.findOne({ where: { id } });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    return usuario.creditosDisponibles;
+  }
+
+  /**
+   * Verifica si el usuario tiene créditos suficientes
+   */
+  async tieneCreditos(id: string, cantidad: number): Promise<boolean> {
+    const creditosDisponibles = await this.obtenerCreditos(id);
+    return creditosDisponibles >= cantidad;
+  }
+
+  /**
+   * Otorga créditos gratuitos iniciales a un nuevo usuario (llamado desde crear)
+   */
+  private async otorgarCreditosIniciales(usuarioId: string): Promise<void> {
+    try {
+      const usuario = await this.usuarioRepository.findOne({ where: { id: usuarioId } });
+      if (usuario) {
+        usuario.creditosDisponibles = 3; // 3 créditos gratuitos
+        await this.usuarioRepository.save(usuario);
+        this.logger.log(`Créditos iniciales otorgados al usuario ${usuarioId}`);
+      }
+    } catch (error) {
+      this.logger.warn(`No se pudieron otorgar créditos iniciales: ${error.message}`);
+    }
+  }
+
   private mapearAResponse(usuario: Usuario): UsuarioResponseDto {
     return {
       id: usuario.id,
@@ -372,8 +415,12 @@ export class UserService {
       nombre: usuario.nombre,
       apellido: usuario.apellido,
       estado: usuario.estado,
+      rol: usuario.rol,
       tipoSuscripcion: usuario.tipoSuscripcion,
       creadoEn: usuario.creadoEn,
+      creditosDisponibles: usuario.creditosDisponibles,
+      totalCreditosComprados: usuario.totalCreditosComprados,
+      totalCreditosConsumidos: usuario.totalCreditosConsumidos,
     };
   }
 }

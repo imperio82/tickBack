@@ -166,7 +166,7 @@ export class AIServicesController {
   })
   async generateText(@Body() generateTextDto: GenerateTextRequestDto): Promise<GenerateResponse> {
     try {
-      this.logger.log(`Generando texto con modelo: ${generateTextDto.model || 'gemini-1.5-flash'}`);
+      this.logger.log(`Generando texto con modelo: ${generateTextDto.model || 'gemini-flash-latest'}`);
       
       const result = await this.googleAIService.generateText(generateTextDto);
       
@@ -315,7 +315,7 @@ export class AIServicesController {
   })
   async countTokens(@Body() dto: CountTokensDto): Promise<{ text: string; tokenCount: number; model: string }> {
     try {
-      const model = dto.model || 'gemini-1.5-flash';
+      const model = dto.model || 'gemini-flash-latest';
       
       this.logger.log(`Contando tokens para texto de ${dto.text.length} caracteres`);
       
@@ -367,7 +367,7 @@ export class AIServicesController {
   @ApiQuery({
     name: 'model',
     description: 'Nombre del modelo a verificar',
-    example: 'gemini-1.5-flash'
+    example: 'gemini-flash-latest'
   })
   @ApiResponse({
     status: 200,

@@ -3,9 +3,27 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 
+/**
+ * Modelos de Gemini disponibles en la API
+ */
+export type GeminiModel =
+  | 'gemini-pro-latest'
+  | 'gemini-flash-latest'
+  | 'gemini-2.5-pro'
+  | 'gemini-2.5-flash'
+  | 'gemini-2.0-flash';
+
+export const GEMINI_MODELS: readonly GeminiModel[] = [
+  'gemini-pro-latest',
+  'gemini-flash-latest',
+  'gemini-2.5-pro',
+  'gemini-2.5-flash',
+  'gemini-2.0-flash',
+] as const;
+
 export interface GenerateTextDto {
   prompt: string;
-  model?: 'gemini-pro' | 'gemini-pro-vision' | 'gemini-1.5-pro' | 'gemini-1.5-flash';
+  model?: GeminiModel;
   systemInstruction?: string;
   maxOutputTokens?: number;
   temperature?: number;
@@ -66,53 +84,99 @@ export class GoogleAIService {
   }
 
   /**
+   * Retry helper con exponential backoff para rate limits
+   */
+  private async retryWithBackoff<T>(
+    fn: () => Promise<T>,
+    maxRetries: number = 3,
+    initialDelay: number = 1000
+  ): Promise<T> {
+    let lastError: Error = new Error('Unknown error');
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await fn();
+      } catch (error) {
+        lastError = error;
+
+        // Verificar si es un error de rate limit (429)
+        const is429Error = error.message?.includes('429') ||
+                          error.message?.includes('quota') ||
+                          error.message?.includes('Too Many Requests');
+
+        if (!is429Error || attempt === maxRetries) {
+          throw error;
+        }
+
+        // Extraer tiempo de espera sugerido del mensaje de error
+        const retryMatch = error.message.match(/retry in ([\d.]+)s/i);
+        const suggestedDelay = retryMatch ? parseFloat(retryMatch[1]) * 1000 : null;
+
+        // Usar el delay sugerido o exponential backoff
+        const delay = suggestedDelay || initialDelay * Math.pow(2, attempt);
+
+        this.logger.warn(
+          `Rate limit hit (attempt ${attempt + 1}/${maxRetries + 1}). ` +
+          `Retrying in ${Math.round(delay / 1000)}s...`
+        );
+
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+
+    throw lastError;
+  }
+
+  /**
    * Genera texto usando el modelo especificado con soporte para system instructions
    */
   async generateText(dto: GenerateTextDto): Promise<GenerateResponse> {
-    try {
-      const { 
-        prompt, 
-        model = 'gemini-1.5-flash', 
-        systemInstruction,
-        ...options 
-      } = dto;
-      
-      this.logger.log(`Generating text with model: ${model}`);
-      
-      const generativeModel = this.getModel(model, systemInstruction);
+    return this.retryWithBackoff(async () => {
+      try {
+        const {
+          prompt,
+          model = 'gemini-flash-latest',
+          systemInstruction,
+          ...options
+        } = dto;
 
-      // Configurar parámetros de generación
-      const generationConfig = {
-        temperature: options.temperature ?? 0.7,
-        topK: options.topK ?? 40,
-        topP: options.topP ?? 0.95,
-        maxOutputTokens: options.maxOutputTokens ?? 1024,
-      };
+        this.logger.log(`Generating text with model: ${model}`);
 
-      const result = await generativeModel.generateContent({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig,
-      });
+        const generativeModel = this.getModel(model, systemInstruction);
 
-      const response = await result.response;
-      const text = response.text();
+        // Configurar parámetros de generación
+        const generationConfig = {
+          temperature: options.temperature ?? 0.7,
+          topK: options.topK ?? 40,
+          topP: options.topP ?? 0.95,
+          maxOutputTokens: options.maxOutputTokens ?? 1024,
+        };
 
-      // Extraer información de uso de tokens si está disponible
-      const usage = response.usageMetadata ? {
-        promptTokenCount: response.usageMetadata.promptTokenCount || 0,
-        candidatesTokenCount: response.usageMetadata.candidatesTokenCount || 0,
-        totalTokenCount: response.usageMetadata.totalTokenCount || 0,
-      } : undefined;
+        const result = await generativeModel.generateContent({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig,
+        });
 
-      return {
-        text,
-        usage,
-      };
+        const response = await result.response;
+        const text = response.text();
 
-    } catch (error) {
-      this.logger.error('Error generating text:', error.message);
-      throw new Error(`Failed to generate text: ${error.message}`);
-    }
+        // Extraer información de uso de tokens si está disponible
+        const usage = response.usageMetadata ? {
+          promptTokenCount: response.usageMetadata.promptTokenCount || 0,
+          candidatesTokenCount: response.usageMetadata.candidatesTokenCount || 0,
+          totalTokenCount: response.usageMetadata.totalTokenCount || 0,
+        } : undefined;
+
+        return {
+          text,
+          usage,
+        };
+
+      } catch (error) {
+        this.logger.error('Error generating text:', error.message);
+        throw new Error(`Failed to generate text: ${error.message}`);
+      }
+    });
   }
 
   /**
@@ -170,7 +234,7 @@ export class GoogleAIService {
   async generateMultipleCandidates(
     prompt: string,
     candidateCount: number = 3,
-    model: string = 'gemini-1.5-flash',
+    model: string = 'gemini-flash-latest',
     systemInstruction?: string
   ): Promise<string[]> {
     try {
@@ -206,7 +270,7 @@ export class GoogleAIService {
     try {
       const {
         messages,
-        model = 'gemini-1.5-flash',
+        model = 'gemini-flash-latest',
         systemInstruction,
         ...options
       } = dto;
@@ -258,7 +322,7 @@ export class GoogleAIService {
    * Crea una sesión de chat con historial persistente
    */
   async startChatSession(
-    model: string = 'gemini-1.5-flash',
+    model: string = 'gemini-flash-latest',
     systemInstruction?: string,
     history?: ConversationMessage[]
   ) {
@@ -307,8 +371,8 @@ export class GoogleAIService {
    * Cuenta tokens de un texto
    */
   async countTokens(
-    text: string, 
-    model: string = 'gemini-1.5-flash',
+    text: string,
+    model: string = 'gemini-flash-latest',
     systemInstruction?: string
   ): Promise<number> {
     try {
@@ -325,19 +389,14 @@ export class GoogleAIService {
   /**
    * Obtiene información sobre los modelos disponibles
    */
-  getAvailableModels(): string[] {
-    return [
-      'gemini-pro',
-      'gemini-pro-vision',
-      'gemini-1.5-pro',
-      'gemini-1.5-flash'
-    ];
+  getAvailableModels(): GeminiModel[] {
+    return [...GEMINI_MODELS];
   }
 
   /**
    * Verifica si un modelo está disponible
    */
   isModelAvailable(modelName: string): boolean {
-    return this.getAvailableModels().includes(modelName);
+    return this.getAvailableModels().includes(modelName as GeminiModel);
   }
 }
